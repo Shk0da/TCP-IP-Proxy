@@ -44,7 +44,6 @@ public class TcpBalancer {
         String proxyCluster = PropertiesConfig.getProperty("proxy.cluster");
         String reconnectInterval = PropertiesConfig.getProperty("proxy.reconnect.interval");
         String maxAttempts = PropertiesConfig.getProperty("proxy.reconnect.attempts");
-        String trafficAbsentTime = PropertiesConfig.getProperty("proxy.reconnect.trafficabsenttime");
 
         makingTcpClients(proxyCluster, reconnectInterval, maxAttempts);
 
@@ -59,20 +58,6 @@ public class TcpBalancer {
                 }, Long.valueOf(reconnectInterval) * 1000 // sec to ms
         );
         scheduledFutures.add(checkActive);
-
-        // тестирование NC в случае отсутствия трафика
-        long trafficAbsentTimeInMs = Long.valueOf(trafficAbsentTime) * 1000; // sec to ms
-        ScheduledFuture<?> checkNC = scheduler.scheduleWithFixedDelay(
-                () -> {
-                    synchronized (updateMonitor) {
-                        if (lastTrafficTime.get() <= System.currentTimeMillis() - trafficAbsentTimeInMs) {
-                            clientInstances.stream()
-                                    .filter(TcpClient::isEnable);
-                        }
-                    }
-                }, trafficAbsentTimeInMs
-        );
-        scheduledFutures.add(checkNC);
     }
 
     private void makingTcpClients(String proxyCluster, String reconnectInterval, String maxAttempts) {
