@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="5 seconds">
+
+    <!-- is logback debugger -->
+    <!--<statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>-->
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="LOG_FILE_NAME" value="./log/tcpip-proxy"/>
+
+    <appender name="ERRORS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE_NAME}.ERRORS.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_NAME}.ERRORS.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+            <maxFileSize>5MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{yyyy.MM.dd HH:mm:ss.SSS} %-5level [%thread] %logger{40} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+
+    <appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE_NAME}.DEBUG.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_NAME}.DEBUG.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+            <maxFileSize>5MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{yyyy.MM.dd HH:mm:ss.SSS} %-5level [%thread] %logger{40} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE_NAME}.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_NAME}.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+            <maxFileSize>5MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{yyyy.MM.dd HH:mm:ss.SSS} %-5level [%thread] %logger{40} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{0} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ALL</level>
+        </filter>
+    </appender>
+
+    <appender name="SIFT_CONNECT" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>DESCRIPTION</key>
+            <defaultValue>Without-CONNECT</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>${LOG_FILE_NAME}-${DESCRIPTION}.log</file>
+                <append>true</append>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                    <fileNamePattern>${LOG_FILE_NAME}-${DESCRIPTION}.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+                    <maxHistory>60</maxHistory>
+                    <totalSizeCap>5GB</totalSizeCap>
+                    <maxFileSize>5MB</maxFileSize>
+                </rollingPolicy>
+                <encoder>
+                    <pattern>%date{yyyy.MM.dd HH:mm:ss.SSS} %-5level [%thread] %logger{40} - %msg%n</pattern>
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="ERRORS_FILE"/>
+        <appender-ref ref="INFO_FILE"/>
+        <appender-ref ref="SIFT_CONNECT"/>
+    </root>
+
+    <root level="INFO">
+        <appender-ref ref="DEBUG_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
